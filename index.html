@@ -75,7 +75,7 @@
             <div class="card-title">Step 1: Select Services</div>
             <div class="card-subtitle">Choose one or more</div>
             <div class="services-grid" id="servicesGrid">
-                <div style="text-align: center; padding: 20px; color: #6b6b6b;">Loading services...</div>
+                <div style="text-align:center; padding:20px; color:#6b6b6b;">Loading services...</div>
             </div>
             <div class="duration-summary" id="durationSummary">
                 <strong>Total Time:</strong> <span id="totalDuration">0</span> min &nbsp;|&nbsp; <strong>Cost:</strong> $<span id="totalCost">0</span>
@@ -156,13 +156,9 @@
                 api('getBusinessHours'),
                 api('getAppointments')
             ]);
-
-            if (svcRes.success) {
-                services = svcRes.services;
-                renderServices();
-            }
-            if (hoursRes.success) businessHours = hoursRes.businessHours;
-            if (aptsRes.success) appointments = aptsRes.appointments;
+            if (svcRes.success) { services = svcRes.services; renderServices(); }
+            if (hoursRes.success) { businessHours = hoursRes.businessHours; }
+            if (aptsRes.success) { appointments = aptsRes.appointments; }
         }
 
         function renderServices() {
@@ -202,56 +198,44 @@
             document.getElementById('durationSummary').classList.add('show');
         }
 
-        function loadSlots() {
-            const dateInput = document.getElementById('bookingDate').value;
-            const selected = Array.from(document.querySelectorAll('input[name="service"]:checked'));
+        // Handles Google Sheets time serial (0.375 = 9:00 AM),
+        // "09:00", "9:00:00", and "9:00 AM" string formats
+        function parseHourMin(val) {
+            if (val === null || val === undefined || val === '') return null;
 
-            if (!dateInput) { showWarning('Please select a date'); return; }
-            if (!selected.length) { showWarning('Please select at least one service first'); return; }
-
-            const date = new Date(dateInput + 'T00:00:00');
-            const dayName = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][date.getDay()];
-            const hours = businessHours[dayName];
-
-            if (!hours || hours.closed === true || hours.closed === 'TRUE') {
-                showWarning('Studio is closed on ' + dayName + 's');
-                return;
+            // Google Sheets decimal time (fraction of 24 hours)
+            if (typeof val === 'number') {
+                const totalMinutes = Math.round(val * 24 * 60);
+                return { hour: Math.floor(totalMinutes / 60), min: totalMinutes % 60 };
             }
 
-            let requiredDuration = 0;
-            selected.forEach(cb => {
-                requiredDuration += parseInt(cb.value.split('-')[2]);
-            });
+            const str = String(val).trim();
 
-            const openH = parseInt(String(hours.open).split(':')[0]);
-            const closeH = parseInt(String(hours.close).split(':')[0]);
-            const slots = [];
-
-            for (let h = openH; h < closeH; h++) {
-                for (let m = 0; m < 60; m += 30) {
-                    if (h * 60 + m + requiredDuration <= closeH * 60) {
-                        slots.push({ hour: h, min: m });
-                    }
-                }
+            // "9:00 AM" / "9:00 PM" format
+            const ampm = str.match(/^(\d+):(\d+)\s*(AM|PM)$/i);
+            if (ampm) {
+                let h = parseInt(ampm[1]);
+                const m = parseInt(ampm[2]);
+                const period = ampm[3].toUpperCase();
+                if (period === 'PM' && h !== 12) h += 12;
+                if (period === 'AM' && h === 12) h = 0;
+                return { hour: h, min: m };
             }
 
-            const available = slots.filter(slot => {
-                return !appointments.some(apt => {
-                    if (apt.date !== dateInput) return false;
-                    const aptHour = parseInt(String(apt.time).split(':')[0]);
-                    const aptMin = parseInt(String(apt.time).split(':')[1]) || 0;
-                    const aptDur = getServiceDuration(apt.services);
-                    const slotStart = slot.hour * 60 + slot.min;
-                    const slotEnd = slotStart + requiredDuration;
-                    const aptStart = aptHour * 60 + aptMin;
-                    const aptEnd = aptStart + aptDur;
-                    return !(slotEnd <= aptStart || slotStart >= aptEnd);
-                });
-            });
+            // "09:00" or "09:00:00" format
+            const parts = str.split(':');
+            if (parts.length >= 2) {
+                return { hour: parseInt(parts[0]), min: parseInt(parts[1]) };
+            }
 
-            renderSlots(available);
-            document.getElementById('timePicker').classList.add('active');
-            document.getElementById('warningMsg').classList.remove('show');
+            return null;
+        }
+
+        // Parse appointment time from sheet (handles same formats)
+        function parseTimeToMins(val) {
+            const parsed = parseHourMin(val);
+            if (!parsed) return null;
+            return parsed.hour * 60 + parsed.min;
         }
 
         function getServiceDuration(serviceNames) {
@@ -263,11 +247,71 @@
             }, 0);
         }
 
+        function loadSlots() {
+            const dateInput = document.getElementById('bookingDate').value;
+            const selected = Array.from(document.querySelectorAll('input[name="service"]:checked'));
+
+            if (!dateInput) { showWarning('Please select a date'); return; }
+            if (!selected.length) { showWarning('Please select at least one service first'); return; }
+
+            const date = new Date(dateInput + 'T00:00:00');
+            const dayName = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][date.getDay()];
+            const hours = businessHours[dayName];
+
+            console.log('Day:', dayName, 'Raw hours:', JSON.stringify(hours));
+
+            if (!hours) { showWarning('No hours configured for ' + dayName); return; }
+
+            const closedVal = String(hours.closed).toLowerCase().trim();
+            if (closedVal === 'true') { showWarning('Studio is closed on ' + dayName + 's'); return; }
+
+            const openTime = parseHourMin(hours.open);
+            const closeTime = parseHourMin(hours.close);
+
+            console.log('Parsed open:', openTime, 'close:', closeTime);
+
+            if (!openTime || !closeTime) { showWarning('Could not read hours for ' + dayName); return; }
+
+            let requiredDuration = 0;
+            selected.forEach(cb => {
+                requiredDuration += parseInt(cb.value.split('-')[2]);
+            });
+
+            const openMins = openTime.hour * 60 + openTime.min;
+            const closeMins = closeTime.hour * 60 + closeTime.min;
+            const slots = [];
+
+            for (let m = openMins; m + requiredDuration <= closeMins; m += 30) {
+                slots.push({ hour: Math.floor(m / 60), min: m % 60 });
+            }
+
+            console.log('Slots before filtering:', slots.length);
+
+            const available = slots.filter(slot => {
+                return !appointments.some(apt => {
+                    if (String(apt.date).trim() !== dateInput) return false;
+                    const aptDur = getServiceDuration(apt.services);
+                    const aptStart = parseTimeToMins(apt.time);
+                    if (aptStart === null) return false;
+                    const aptEnd = aptStart + aptDur;
+                    const slotStart = slot.hour * 60 + slot.min;
+                    const slotEnd = slotStart + requiredDuration;
+                    return !(slotEnd <= aptStart || slotStart >= aptEnd);
+                });
+            });
+
+            console.log('Available after filtering:', available.length);
+
+            renderSlots(available);
+            document.getElementById('timePicker').classList.add('active');
+            document.getElementById('warningMsg').classList.remove('show');
+        }
+
         function renderSlots(slots) {
             const container = document.getElementById('timeSlots');
             container.innerHTML = '';
             if (!slots.length) {
-                container.innerHTML = '<p style="grid-column:1/-1; text-align:center; color:#d4a5a5; padding: 12px;">No times available for this date. Try another day!</p>';
+                container.innerHTML = '<p style="grid-column:1/-1; text-align:center; color:#d4a5a5; padding:12px;">No times available for this date. Try another day!</p>';
                 return;
             }
             slots.forEach(slot => {
@@ -348,10 +392,11 @@
                 document.getElementById('clientPhone').value = '';
                 document.getElementById('clientNotes').value = '';
                 document.getElementById('selectedTime').value = '';
-                appointments = (await api('getAppointments')).appointments || appointments;
+                const aptsRes = await api('getAppointments');
+                if (aptsRes.success) appointments = aptsRes.appointments;
                 setTimeout(() => document.getElementById('successMsg').classList.remove('show'), 6000);
             } else {
-                document.getElementById('errorMsg').textContent = 'Failed to submit booking. Please try again.';
+                document.getElementById('errorMsg').textContent = 'Failed to submit. Please try again.';
                 document.getElementById('errorMsg').classList.add('show');
                 setTimeout(() => document.getElementById('errorMsg').classList.remove('show'), 4000);
             }
