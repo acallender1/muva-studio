@@ -1,7 +1,9 @@
-const CACHE = 'muva-studio-v1';
+const CACHE = 'muva-studio-v3';
 const ASSETS = [
-    '/',
-    '/index.html'
+    '/muva-studio/',
+    '/muva-studio/index.html',
+    '/muva-studio/icon-192.png',
+    '/muva-studio/icon-512.png'
 ];
 
 self.addEventListener('install', e => {
@@ -21,11 +23,10 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-    // Don't cache API calls
-    if (e.request.url.includes('script.google.com') || e.request.url.includes('fonts.googleapis.com')) {
+    if (e.request.url.includes('script.google.com') || 
+        e.request.url.includes('fonts.googleapis.com')) {
         return fetch(e.request).catch(() => {});
     }
-
     e.respondWith(
         caches.match(e.request).then(cached => {
             return cached || fetch(e.request).then(res => {
@@ -33,6 +34,6 @@ self.addEventListener('fetch', e => {
                 caches.open(CACHE).then(cache => cache.put(e.request, clone));
                 return res;
             });
-        }).catch(() => caches.match('/index.html'))
+        }).catch(() => caches.match('/muva-studio/index.html'))
     );
 });
