@@ -112,6 +112,14 @@
         .form-group label { display:block; margin-bottom:8px; font-weight:600; font-size:13px; letter-spacing:0.3px; }
         .form-group input, .form-group textarea { width:100%; padding:13px 16px; border:1.5px solid rgba(212,165,165,0.3); border-radius:var(--radius-sm); font-size:16px; font-family:'Poppins',sans-serif; transition:all 0.25s ease; background:rgba(255,255,255,0.5); backdrop-filter:blur(8px); color:var(--text); }
         .form-group input:focus, .form-group textarea:focus { outline:none; border-color:var(--pink); background:rgba(255,255,255,0.75); box-shadow:0 0 0 4px rgba(212,165,165,0.15); }
+        input[type="date"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    display: block;
+}
         .form-group textarea { min-height:80px; resize:vertical; }
         .form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
 
