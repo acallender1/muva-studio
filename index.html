@@ -11,484 +11,498 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="manifest" href="manifest.json">
     <title>Muva Studio</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,600;0,700;1,400&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Poppins', sans-serif; background: #faf8f6; color: #2d2a28; }
-
-        /* PWA install banner */
-        .install-banner {
-            display: none;
-            background: linear-gradient(135deg, #d4a5a5, #9b7fa1);
-            color: white;
-            padding: 12px 20px;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-            font-size: 13px;
+        :root {
+            --pink: #d4a5a5;
+            --pink-dark: #a67878;
+            --plum: #9b7fa1;
+            --plum-dark: #6b4e71;
+            --bg: #faf8f6;
+            --text: #2d2a28;
+            --text-soft: #6b6b6b;
+            --glass-bg: rgba(255,255,255,0.55);
+            --glass-border: rgba(255,255,255,0.75);
+            --glass-shadow: 0 8px 32px rgba(180,140,160,0.18);
+            --glass-blur: blur(18px);
+            --radius: 20px;
+            --radius-sm: 12px;
         }
-        .install-banner.show { display: flex; }
-        .install-banner-text { flex: 1; }
-        .install-banner-text strong { display: block; font-size: 14px; margin-bottom: 2px; }
-        .install-btn { background: white; color: #d4a5a5; border: none; padding: 8px 14px; border-radius: 8px; font-weight: 600; font-size: 12px; cursor: pointer; white-space: nowrap; }
-        .install-dismiss { background: none; border: none; color: white; font-size: 20px; cursor: pointer; padding: 4px; }
 
-        .navbar { background: white; padding: 16px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-        .logo { font-size: 24px; font-weight: 700; color: #d4a5a5; font-family: 'Cormorant', serif; }
-        .offline-badge { background: #ff9800; color: white; font-size: 11px; padding: 3px 8px; border-radius: 20px; display: none; }
-        .offline-badge.show { display: block; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
-        .hero { background: linear-gradient(135deg, #d4a5a5, #9b7fa1); color: white; padding: 40px 20px; text-align: center; border-radius: 16px; margin-bottom: 30px; }
-        .hero h1 { font-size: 42px; margin-bottom: 8px; font-weight: 700; font-family: 'Cormorant', serif; }
-        .hero p { font-size: 16px; opacity: 0.95; }
-        .card { background: white; border-radius: 16px; padding: 28px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); margin-bottom: 24px; }
-        .card-title { font-size: 22px; color: #d4a5a5; margin-bottom: 4px; font-weight: 700; font-family: 'Cormorant', serif; }
-        .card-subtitle { font-size: 13px; color: #6b6b6b; margin-bottom: 18px; }
-        .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 16px; }
-        .service-checkbox { display: flex; align-items: flex-start; gap: 10px; padding: 12px; border: 2px solid #e0e0e0; border-radius: 12px; cursor: pointer; transition: all 0.2s ease; }
-        .service-checkbox:hover { border-color: #d4a5a5; background: #f5f1ed; }
-        .service-checkbox input { width: 18px; height: 18px; margin-top: 2px; accent-color: #d4a5a5; flex-shrink: 0; }
-        .service-checkbox.selected { border-color: #d4a5a5; background: rgba(212,165,165,0.08); }
-        .service-name { font-weight: 600; font-size: 14px; margin-bottom: 3px; }
-        .service-info { font-size: 12px; color: #6b6b6b; }
-        .duration-summary { background: #f5f1ed; padding: 14px; border-radius: 12px; margin-top: 16px; display: none; font-size: 14px; }
-        .duration-summary.show { display: block; }
-        .form-group { margin-bottom: 18px; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; }
-        .form-group input, .form-group textarea { width: 100%; padding: 12px 14px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 16px; font-family: 'Poppins', sans-serif; transition: all 0.2s ease; background: white; }
-        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: #d4a5a5; box-shadow: 0 0 0 3px rgba(212,165,165,0.1); }
-        .form-group textarea { min-height: 80px; resize: vertical; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .time-picker { display: none; margin-top: 16px; }
-        .time-picker.active { display: block; }
-        .time-picker-label { font-weight: 600; font-size: 14px; margin-bottom: 12px; display: block; }
-        .time-slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 10px; }
-        .time-slot { padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; text-align: center; cursor: pointer; transition: all 0.2s ease; font-size: 13px; font-weight: 500; background: white; min-height: 44px; display: flex; align-items: center; justify-content: center; }
-        .time-slot:hover:not(.unavailable) { border-color: #d4a5a5; background: #f5f1ed; }
-        .time-slot.selected { background: #d4a5a5; color: white; border-color: #d4a5a5; }
-        .time-slot.unavailable { opacity: 0.3; cursor: not-allowed; background: #f0f0f0; }
-        .warning { background: #fffbea; border: 1px solid #ffc107; color: #856404; padding: 12px 14px; border-radius: 8px; font-size: 13px; margin-top: 12px; display: none; }
-        .warning.show { display: block; }
-        .btn-submit { width: 100%; padding: 14px; background: linear-gradient(135deg, #d4a5a5, #9b7fa1); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; font-family: 'Poppins', sans-serif; min-height: 48px; }
-        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(212,165,165,0.3); }
-        .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-        .footer { background: #f5f1ed; padding: 24px; border-radius: 12px; text-align: center; margin-top: 30px; margin-bottom: 40px; }
-        .footer h3 { font-size: 18px; margin-bottom: 12px; color: #d4a5a5; font-weight: 700; font-family: 'Cormorant', serif; }
-        .footer p { font-size: 13px; color: #6b6b6b; margin-bottom: 6px; }
-        .success { background: #c8e6c9; border: 1px solid #4caf50; color: #2e7d32; padding: 14px; border-radius: 8px; text-align: center; display: none; margin-bottom: 16px; font-weight: 500; }
-        .success.show { display: block; }
-        .error-msg { background: #ffcdd2; border: 1px solid #f44336; color: #b71c1c; padding: 14px; border-radius: 8px; text-align: center; display: none; margin-bottom: 16px; }
-        .error-msg.show { display: block; }
-        .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.4); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; margin-right: 8px; vertical-align: middle; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @media (max-width: 600px) {
-            .hero h1 { font-size: 32px; }
-            .services-grid { grid-template-columns: 1fr; }
-            .time-slots { grid-template-columns: repeat(3, 1fr); }
-            .form-row { grid-template-columns: 1fr; }
-            .card { padding: 20px; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        /* background blobs */
+        .bg-blobs { position: fixed; top:0; left:0; width:100%; height:100%; z-index:-1; overflow:hidden; pointer-events:none; }
+        .blob { position:absolute; border-radius:50%; filter:blur(80px); opacity:0.35; }
+        .blob-1 { width:500px; height:500px; background:radial-gradient(circle,#d4a5a5,transparent); top:-100px; left:-100px; animation:blobFloat 12s ease-in-out infinite; }
+        .blob-2 { width:400px; height:400px; background:radial-gradient(circle,#9b7fa1,transparent); top:30%; right:-80px; animation:blobFloat 15s ease-in-out infinite reverse; }
+        .blob-3 { width:350px; height:350px; background:radial-gradient(circle,#e8c8c8,transparent); bottom:10%; left:20%; animation:blobFloat 10s ease-in-out infinite 3s; }
+        @keyframes blobFloat { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(20px,-30px) scale(1.05)} 66%{transform:translate(-15px,15px) scale(0.95)} }
+
+        /* install banner */
+        .install-banner { display:none; background:linear-gradient(135deg,rgba(212,165,165,0.92),rgba(155,127,161,0.92)); backdrop-filter:blur(12px); color:white; padding:10px 16px; justify-content:space-between; align-items:center; gap:12px; font-size:13px; border-bottom:1px solid rgba(255,255,255,0.2); }
+        .install-banner.show { display:flex; }
+        .install-banner-text strong { display:block; font-size:14px; margin-bottom:1px; }
+        .install-btn-sm { background:white; color:var(--pink); border:none; padding:7px 14px; border-radius:20px; font-weight:600; font-size:12px; cursor:pointer; }
+        .install-dismiss { background:none; border:none; color:white; font-size:22px; cursor:pointer; padding:0 4px; }
+
+        /* navbar */
+        .navbar { position:sticky; top:0; z-index:200; padding:14px 20px; display:flex; justify-content:space-between; align-items:center; background:rgba(250,248,246,0.6); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px); border-bottom:1px solid rgba(255,255,255,0.7); box-shadow:0 2px 20px rgba(180,140,160,0.1); }
+        .logo { font-family:'Cormorant',serif; font-size:26px; font-weight:700; background:linear-gradient(135deg,var(--pink),var(--plum)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .offline-badge { background:rgba(255,152,0,0.85); backdrop-filter:blur(8px); color:white; font-size:11px; padding:4px 10px; border-radius:20px; display:none; }
+        .offline-badge.show { display:block; }
+
+        /* hero banner image */
+        .hero-banner-img { width:100%; height:280px; object-fit:cover; display:block; }
+
+        /* hero text */
+        .hero-text { background:linear-gradient(135deg,var(--pink) 0%,var(--plum) 100%); padding:28px 24px; text-align:center; color:white; }
+        .hero-text h1 { font-family:'Cormorant',serif; font-size:38px; font-weight:700; margin-bottom:6px; }
+        .hero-text p { font-size:15px; opacity:0.92; margin-bottom:20px; font-style:italic; }
+        .hero-btn { display:inline-block; background:rgba(255,255,255,0.22); backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,0.5); color:white; padding:12px 32px; border-radius:30px; font-weight:600; font-size:15px; cursor:pointer; transition:all 0.3s ease; font-family:'Poppins',sans-serif; }
+        .hero-btn:hover { background:rgba(255,255,255,0.35); transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,0.15); }
+
+        /* carousel */
+        .carousel-section { padding:28px 0 20px; background:linear-gradient(180deg,var(--plum) 0%,var(--bg) 100%); }
+        .carousel-label { text-align:center; font-size:11px; letter-spacing:3px; text-transform:uppercase; color:rgba(255,255,255,0.7); margin-bottom:16px; font-weight:500; }
+        .carousel-wrapper { position:relative; overflow:hidden; user-select:none; }
+        .carousel-track { display:flex; transition:transform 0.5s cubic-bezier(0.4,0,0.2,1); will-change:transform; }
+        .carousel-slide { flex:0 0 100%; padding:0 16px; }
+        .carousel-slide img { width:100%; height:320px; object-fit:cover; border-radius:var(--radius); display:block; box-shadow:0 12px 40px rgba(107,78,113,0.3); }
+        .carousel-dots { display:flex; justify-content:center; gap:8px; margin-top:16px; padding-bottom:8px; }
+        .dot { width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.35); cursor:pointer; transition:all 0.3s ease; border:none; padding:0; }
+        .dot.active { background:white; width:24px; border-radius:4px; }
+
+        /* section heading */
+        .section-heading { text-align:center; padding:28px 16px 8px; }
+        .section-heading h2 { font-family:'Cormorant',serif; font-size:28px; color:var(--text); font-weight:700; margin-bottom:4px; }
+        .section-heading p { font-size:13px; color:var(--text-soft); }
+
+        /* container */
+        .container { max-width:900px; margin:0 auto; padding:20px 16px; }
+
+        /* glass cards */
+        .card { background:var(--glass-bg); backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur); border:1px solid var(--glass-border); box-shadow:var(--glass-shadow); border-radius:var(--radius); padding:24px; margin-bottom:20px; transition:box-shadow 0.3s ease; }
+        .card:hover { box-shadow:0 12px 40px rgba(180,140,160,0.25); }
+        .card-title { font-family:'Cormorant',serif; font-size:24px; color:var(--pink-dark); margin-bottom:3px; font-weight:700; }
+        .card-subtitle { font-size:13px; color:var(--text-soft); margin-bottom:18px; }
+
+        /* services */
+        .services-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(155px,1fr)); gap:12px; margin-bottom:16px; }
+        .service-checkbox { display:flex; align-items:flex-start; gap:10px; padding:14px; border:1.5px solid rgba(212,165,165,0.3); border-radius:var(--radius-sm); cursor:pointer; transition:all 0.25s ease; background:rgba(255,255,255,0.4); backdrop-filter:blur(8px); }
+        .service-checkbox:hover { border-color:var(--pink); background:rgba(212,165,165,0.12); transform:translateY(-2px); box-shadow:0 6px 20px rgba(212,165,165,0.2); }
+        .service-checkbox.selected { border-color:var(--pink); background:rgba(212,165,165,0.15); box-shadow:0 4px 16px rgba(212,165,165,0.25); }
+        .service-checkbox input { width:18px; height:18px; margin-top:2px; accent-color:var(--pink); flex-shrink:0; }
+        .service-name { font-weight:600; font-size:14px; margin-bottom:3px; }
+        .service-info { font-size:12px; color:var(--text-soft); }
+
+        /* duration summary */
+        .duration-summary { background:rgba(212,165,165,0.12); backdrop-filter:blur(8px); border:1px solid rgba(212,165,165,0.3); padding:14px 16px; border-radius:var(--radius-sm); margin-top:16px; font-size:14px; display:none; }
+        .duration-summary.show { display:block; animation:fadeSlideUp 0.3s ease; }
+
+        /* form */
+        .form-group { margin-bottom:18px; }
+        .form-group label { display:block; margin-bottom:8px; font-weight:600; font-size:13px; letter-spacing:0.3px; }
+        .form-group input, .form-group textarea { width:100%; padding:13px 16px; border:1.5px solid rgba(212,165,165,0.3); border-radius:var(--radius-sm); font-size:16px; font-family:'Poppins',sans-serif; transition:all 0.25s ease; background:rgba(255,255,255,0.5); backdrop-filter:blur(8px); color:var(--text); }
+        .form-group input:focus, .form-group textarea:focus { outline:none; border-color:var(--pink); background:rgba(255,255,255,0.75); box-shadow:0 0 0 4px rgba(212,165,165,0.15); }
+        .form-group textarea { min-height:80px; resize:vertical; }
+        .form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+
+        /* time slots */
+        .time-picker { display:none; margin-top:16px; }
+        .time-picker.active { display:block; animation:fadeSlideUp 0.3s ease; }
+        .time-picker-label { font-weight:600; font-size:13px; margin-bottom:12px; display:block; }
+        .time-slots { display:grid; grid-template-columns:repeat(auto-fill,minmax(86px,1fr)); gap:10px; }
+        .time-slot { padding:12px 8px; border:1.5px solid rgba(212,165,165,0.3); border-radius:var(--radius-sm); text-align:center; cursor:pointer; transition:all 0.2s ease; font-size:13px; font-weight:500; background:rgba(255,255,255,0.45); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); min-height:44px; display:flex; align-items:center; justify-content:center; color:var(--text); }
+        .time-slot:hover:not(.unavailable) { border-color:var(--pink); background:rgba(212,165,165,0.15); transform:translateY(-2px); box-shadow:0 4px 12px rgba(212,165,165,0.2); }
+        .time-slot.selected { background:linear-gradient(135deg,var(--pink),var(--plum)); color:white; border-color:transparent; box-shadow:0 4px 16px rgba(212,165,165,0.4); }
+        .time-slot.unavailable { opacity:0.3; cursor:not-allowed; }
+
+        /* warning */
+        .warning { background:rgba(255,251,234,0.8); backdrop-filter:blur(8px); border:1px solid rgba(255,193,7,0.4); color:#856404; padding:12px 14px; border-radius:var(--radius-sm); font-size:13px; margin-top:12px; display:none; }
+        .warning.show { display:block; }
+
+        /* submit */
+        .btn-submit { width:100%; padding:15px; background:linear-gradient(135deg,var(--pink),var(--plum)); color:white; border:none; border-radius:30px; font-size:16px; font-weight:600; cursor:pointer; transition:all 0.3s ease; font-family:'Poppins',sans-serif; min-height:50px; box-shadow:0 6px 24px rgba(212,165,165,0.35); }
+        .btn-submit:hover { transform:translateY(-2px); box-shadow:0 12px 32px rgba(212,165,165,0.45); }
+        .btn-submit:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
+
+        /* footer */
+        .footer { background:rgba(255,255,255,0.4); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border:1px solid var(--glass-border); border-radius:var(--radius); padding:24px; text-align:center; margin-top:10px; margin-bottom:40px; box-shadow:var(--glass-shadow); }
+        .footer h3 { font-family:'Cormorant',serif; font-size:20px; margin-bottom:12px; color:var(--pink-dark); font-weight:700; }
+        .footer p { font-size:13px; color:var(--text-soft); margin-bottom:6px; }
+
+        /* alerts */
+        .success { background:rgba(200,230,201,0.85); backdrop-filter:blur(10px); border:1px solid rgba(76,175,80,0.4); color:#2e7d32; padding:14px; border-radius:var(--radius-sm); text-align:center; display:none; margin-bottom:16px; font-weight:500; }
+        .success.show { display:block; animation:fadeSlideUp 0.3s ease; }
+        .error-msg { background:rgba(255,205,210,0.85); backdrop-filter:blur(10px); border:1px solid rgba(244,67,54,0.4); color:#b71c1c; padding:14px; border-radius:var(--radius-sm); text-align:center; display:none; margin-bottom:16px; }
+        .error-msg.show { display:block; }
+
+        .spinner { display:inline-block; width:16px; height:16px; border:2px solid rgba(255,255,255,0.4); border-top-color:white; border-radius:50%; animation:spin 0.7s linear infinite; margin-right:8px; vertical-align:middle; }
+
+        @keyframes spin { to { transform:rotate(360deg); } }
+        @keyframes fadeSlideUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+        /* responsive */
+        @media (max-width:600px) {
+            .hero-banner-img { height:200px; }
+            .hero-text h1 { font-size:30px; }
+            .services-grid { grid-template-columns:1fr 1fr; }
+            .time-slots { grid-template-columns:repeat(3,1fr); }
+            .form-row { grid-template-columns:1fr; }
+            .card { padding:18px; }
+            .carousel-slide img { height:260px; }
+        }
+        @media (min-width:768px) {
+            .carousel-slide { padding:0 24px; }
+            .carousel-slide img { height:380px; }
+            .hero-banner-img { height:360px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- PWA Install Banner -->
-    <div class="install-banner" id="installBanner">
-        <div class="install-banner-text">
-            <strong>Add to Home Screen</strong>
-            Book appointments faster — install Muva Studio!
+<div class="bg-blobs">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+</div>
+
+<div class="install-banner" id="installBanner">
+    <div class="install-banner-text">
+        <strong>Install Muva Studio</strong>
+        Book appointments faster from your home screen!
+    </div>
+    <button class="install-btn-sm" id="installBtn">Install</button>
+    <button class="install-dismiss" onclick="dismissInstall()">✕</button>
+</div>
+
+<nav class="navbar">
+    <div class="logo">Muva Studio</div>
+    <span class="offline-badge" id="offlineBadge">Offline</span>
+</nav>
+
+<img class="hero-banner-img" src="banner.jpg" alt="Muva Studio Banner" onerror="this.style.display='none'">
+
+<div class="hero-text">
+    <h1>Muva Studio</h1>
+    <p>Transform Your Look, Elevate Your Confidence</p>
+    <button class="hero-btn" onclick="document.getElementById('booking-start').scrollIntoView({behavior:'smooth'})">
+        Book Now
+    </button>
+</div>
+
+<div class="carousel-section">
+    <div class="carousel-label">Portfolio</div>
+    <div class="carousel-wrapper" id="carousel"
+         ontouchstart="touchStart(event)"
+         ontouchend="touchEnd(event)">
+        <div class="carousel-track" id="carouselTrack">
+            <div class="carousel-slide"><img src="gallery-1.jpg" alt="Portfolio 1" onerror="this.style.background='linear-gradient(135deg,#d4a5a5,#9b7fa1)'"></div>
+            <div class="carousel-slide"><img src="gallery-2.jpg" alt="Portfolio 2" onerror="this.style.background='linear-gradient(135deg,#9b7fa1,#6b4e71)'"></div>
+            <div class="carousel-slide"><img src="gallery-3.jpg" alt="Portfolio 3" onerror="this.style.background='linear-gradient(135deg,#6b4e71,#d4a5a5)'"></div>
+            <div class="carousel-slide"><img src="gallery-4.jpg" alt="Portfolio 4" onerror="this.style.background='linear-gradient(135deg,#e8c8c8,#9b7fa1)'"></div>
+            <div class="carousel-slide"><img src="gallery-5.jpg" alt="Portfolio 5" onerror="this.style.background='linear-gradient(135deg,#d4a5a5,#6b4e71)'"></div>
         </div>
-        <button class="install-btn" id="installBtn">Install</button>
-        <button class="install-dismiss" onclick="dismissInstall()">✕</button>
+    </div>
+    <div class="carousel-dots" id="carouselDots"></div>
+</div>
+
+<div class="section-heading">
+    <h2>Book Your Appointment</h2>
+    <p>Select your services and preferred time below</p>
+</div>
+
+<div class="container" id="booking-start">
+    <div class="success" id="successMsg">✓ Booking submitted! Check your email for confirmation.</div>
+    <div class="error-msg" id="errorMsg">Something went wrong. Please try again.</div>
+
+    <div class="card">
+        <div class="card-title">Step 1 — Select Services</div>
+        <div class="card-subtitle">Choose one or more</div>
+        <div class="services-grid" id="servicesGrid">
+            <div style="text-align:center;padding:20px;color:var(--text-soft);grid-column:1/-1;">Loading services...</div>
+        </div>
+        <div class="duration-summary" id="durationSummary">
+            <strong style="color:var(--pink-dark);">Total Time:</strong> <span id="totalDuration">0</span> min &nbsp;|&nbsp;
+            <strong style="color:var(--pink-dark);">Cost:</strong> $<span id="totalCost">0</span>
+        </div>
     </div>
 
-    <div class="navbar">
-        <div class="logo">Muva Studio</div>
-        <span class="offline-badge" id="offlineBadge">Offline</span>
+    <div class="card">
+        <div class="card-title">Step 2 — Choose Date & Time</div>
+        <div class="card-subtitle">Available slots update based on your services</div>
+        <div class="form-group">
+            <label>Select Date</label>
+            <input type="date" id="bookingDate" onchange="loadSlots()">
+        </div>
+        <div class="warning" id="warningMsg">Select a date and service to see available times</div>
+        <div class="time-picker" id="timePicker">
+            <label class="time-picker-label">Available Times</label>
+            <div class="time-slots" id="timeSlots"></div>
+        </div>
     </div>
 
-    <div class="container">
-        <div class="hero">
-            <h1>Book Your Glam</h1>
-            <p>Professional makeup artist services for every occasion</p>
+    <div class="card">
+        <div class="card-title">Step 3 — Your Information</div>
+        <div class="card-subtitle">Complete your booking</div>
+        <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" id="clientName" placeholder="Jane Doe">
         </div>
-
-        <div class="success" id="successMsg">✓ Booking submitted! Check your email for confirmation.</div>
-        <div class="error-msg" id="errorMsg">Something went wrong. Please try again.</div>
-
-        <div class="card">
-            <div class="card-title">Step 1: Select Services</div>
-            <div class="card-subtitle">Choose one or more</div>
-            <div class="services-grid" id="servicesGrid">
-                <div style="text-align:center; padding:20px; color:#6b6b6b; grid-column:1/-1;">Loading services...</div>
-            </div>
-            <div class="duration-summary" id="durationSummary">
-                <strong>Total Time:</strong> <span id="totalDuration">0</span> min &nbsp;|&nbsp; <strong>Cost:</strong> $<span id="totalCost">0</span>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-title">Step 2: Choose Date & Time</div>
-            <div class="card-subtitle">See available slots in real time</div>
+        <div class="form-row">
             <div class="form-group">
-                <label>Select Date</label>
-                <input type="date" id="bookingDate" onchange="loadSlots()">
+                <label>Email</label>
+                <input type="email" id="clientEmail" placeholder="jane@email.com">
             </div>
-            <div class="warning" id="warningMsg">Select a date and service to see available times</div>
-            <div class="time-picker" id="timePicker">
-                <label class="time-picker-label">Available Times</label>
-                <div class="time-slots" id="timeSlots"></div>
+            <div class="form-group">
+                <label>Phone</label>
+                <input type="tel" id="clientPhone" placeholder="(555) 123-4567">
             </div>
         </div>
+        <div class="form-group">
+            <label>Special Requests</label>
+            <textarea id="clientNotes" placeholder="Allergies, color preferences, skin concerns..."></textarea>
+        </div>
+        <button class="btn-submit" id="submitBtn" onclick="submitBooking()">Complete Booking</button>
+    </div>
 
-        <div class="card">
-            <div class="card-title">Step 3: Your Information</div>
-            <div class="card-subtitle">Complete your booking</div>
-            <div class="form-group">
-                <label>Full Name</label>
-                <input type="text" id="clientName" placeholder="Jane Doe">
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="clientEmail" placeholder="jane@email.com">
+    <div class="footer">
+        <h3>Questions?</h3>
+        <p>📞 (555) 123-4567</p>
+        <p>📧 muva.studio@email.com</p>
+        <p>⏰ Mon–Fri 9AM–6PM &nbsp;|&nbsp; Thu–Fri until 8PM &nbsp;|&nbsp; Sat 10AM–5PM &nbsp;|&nbsp; Sun Closed</p>
+    </div>
+</div>
+
+<input type="hidden" id="selectedTime">
+
+<script>
+    const API = 'https://script.google.com/macros/s/AKfycbxqX4GqZ35rb2AZdKtM6XJRAGih2SzJl20RVN9n6SGdN6--nZvOgoHxmjtHD0Mtfwe5Cg/exec';
+    let services = [], businessHours = {}, appointments = [], deferredInstallPrompt = null;
+
+    // PWA
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+    }
+    window.addEventListener('beforeinstallprompt', e => {
+        e.preventDefault(); deferredInstallPrompt = e;
+        if (!localStorage.getItem('installDismissed')) document.getElementById('installBanner').classList.add('show');
+    });
+    window.addEventListener('appinstalled', () => { document.getElementById('installBanner').classList.remove('show'); deferredInstallPrompt = null; });
+    document.getElementById('installBtn').addEventListener('click', async () => {
+        if (!deferredInstallPrompt) return;
+        deferredInstallPrompt.prompt(); await deferredInstallPrompt.userChoice;
+        deferredInstallPrompt = null; document.getElementById('installBanner').classList.remove('show');
+    });
+    function dismissInstall() { document.getElementById('installBanner').classList.remove('show'); localStorage.setItem('installDismissed','true'); }
+    window.addEventListener('online', () => document.getElementById('offlineBadge').classList.remove('show'));
+    window.addEventListener('offline', () => document.getElementById('offlineBadge').classList.add('show'));
+    if (!navigator.onLine) document.getElementById('offlineBadge').classList.add('show');
+
+    // CAROUSEL
+    let currentSlide = 0, autoScrollTimer = null, touchStartX = 0;
+    const totalSlides = 5;
+
+    function initCarousel() {
+        const dots = document.getElementById('carouselDots');
+        for (let i = 0; i < totalSlides; i++) {
+            const dot = document.createElement('button');
+            dot.className = 'dot' + (i === 0 ? ' active' : '');
+            dot.setAttribute('aria-label', `Slide ${i + 1}`);
+            dot.onclick = () => { goToSlide(i); resetAutoScroll(); };
+            dots.appendChild(dot);
+        }
+        startAutoScroll();
+    }
+
+    function goToSlide(index) {
+        currentSlide = (index + totalSlides) % totalSlides;
+        document.getElementById('carouselTrack').style.transform = `translateX(-${currentSlide * 100}%)`;
+        document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === currentSlide));
+    }
+
+    function nextSlide() { goToSlide(currentSlide + 1); }
+    function startAutoScroll() { autoScrollTimer = setInterval(nextSlide, 4000); }
+    function stopAutoScroll() { clearInterval(autoScrollTimer); }
+    function resetAutoScroll() { stopAutoScroll(); startAutoScroll(); }
+
+    function touchStart(e) { touchStartX = e.touches[0].clientX; stopAutoScroll(); }
+    function touchEnd(e) {
+        const diff = touchStartX - e.changedTouches[0].clientX;
+        if (Math.abs(diff) > 50) { diff > 0 ? nextSlide() : goToSlide(currentSlide - 1); }
+        startAutoScroll();
+    }
+
+    document.getElementById('carousel').addEventListener('mouseenter', stopAutoScroll);
+    document.getElementById('carousel').addEventListener('mouseleave', startAutoScroll);
+    initCarousel();
+
+    // API
+    async function api(action, data = {}) {
+        try {
+            const res = await fetch(API, { method:'POST', body:JSON.stringify({action,...data}) });
+            return await res.json();
+        } catch(e) { return { success:false, error:e.message }; }
+    }
+
+    async function loadAll() {
+        const [svcRes, hoursRes, aptsRes] = await Promise.all([api('getServices'), api('getBusinessHours'), api('getAppointments')]);
+        if (svcRes.success) { services = svcRes.services; renderServices(); }
+        if (hoursRes.success) { businessHours = hoursRes.businessHours; }
+        if (aptsRes.success) { appointments = aptsRes.appointments; }
+    }
+
+    function renderServices() {
+        const grid = document.getElementById('servicesGrid');
+        if (!services.length) { grid.innerHTML = '<p style="color:var(--text-soft);grid-column:1/-1;text-align:center;padding:20px;">No services available.</p>'; return; }
+        grid.innerHTML = services.map((s,i) => `
+            <label class="service-checkbox" id="svc-${i}">
+                <input type="checkbox" name="service" value="${s.name}-${s.price}-${s.duration}" onchange="updateDuration()">
+                <div>
+                    <div class="service-name">${s.name}</div>
+                    <div class="service-info">$${s.price} &bull; ${s.duration} min</div>
                 </div>
-                <div class="form-group">
-                    <label>Phone</label>
-                    <input type="tel" id="clientPhone" placeholder="(555) 123-4567">
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Special Requests</label>
-                <textarea id="clientNotes" placeholder="Allergies, color preferences, skin concerns..."></textarea>
-            </div>
-            <button class="btn-submit" id="submitBtn" onclick="submitBooking()">Complete Booking</button>
-        </div>
+            </label>
+        `).join('');
+    }
 
-        <div class="footer">
-            <h3>Questions?</h3>
-            <p>📞 (555) 123-4567</p>
-            <p>📧 muva.studio@email.com</p>
-            <p>⏰ Mon–Fri 9AM–6PM &nbsp;|&nbsp; Thu–Fri until 8PM &nbsp;|&nbsp; Sat 10AM–5PM &nbsp;|&nbsp; Sun Closed</p>
-        </div>
-    </div>
+    function updateDuration() {
+        const selected = Array.from(document.querySelectorAll('input[name="service"]:checked'));
+        document.querySelectorAll('.service-checkbox').forEach(cb => cb.classList.toggle('selected', cb.querySelector('input').checked));
+        if (!selected.length) { document.getElementById('durationSummary').classList.remove('show'); return; }
+        let dur = 0, cost = 0;
+        selected.forEach(cb => { const p = cb.value.split('-'); dur += parseInt(p[p.length-1]); cost += parseInt(p[p.length-2]); });
+        document.getElementById('totalDuration').textContent = dur;
+        document.getElementById('totalCost').textContent = cost;
+        document.getElementById('durationSummary').classList.add('show');
+    }
 
-    <input type="hidden" id="selectedTime">
-
-    <script>
-        const API = 'https://script.google.com/macros/s/AKfycbxqX4GqZ35rb2AZdKtM6XJRAGih2SzJl20RVN9n6SGdN6--nZvOgoHxmjtHD0Mtfwe5Cg/exec';
-
-        let services = [];
-        let businessHours = {};
-        let appointments = [];
-        let deferredInstallPrompt = null;
-
-        // ===== PWA SETUP =====
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('SW registered'))
-                    .catch(err => console.log('SW failed:', err));
-            });
+    function parseHourMin(val) {
+        if (val === null || val === undefined || val === '') return null;
+        if (typeof val === 'string' && val.includes('T')) {
+            const tp = val.split('T')[1].split(':');
+            const totalMins = parseInt(tp[0]) * 60 + parseInt(tp[1]) - new Date().getTimezoneOffset();
+            return { hour: Math.floor(totalMins/60)%24, min: totalMins%60 };
         }
+        if (typeof val === 'number') { const t = Math.round(val*24*60); return { hour:Math.floor(t/60), min:t%60 }; }
+        const str = String(val).trim();
+        const ampm = str.match(/^(\d+):(\d+)\s*(AM|PM)$/i);
+        if (ampm) { let h=parseInt(ampm[1]); const m=parseInt(ampm[2]),p=ampm[3].toUpperCase(); if(p==='PM'&&h!==12)h+=12; if(p==='AM'&&h===12)h=0; return {hour:h,min:m}; }
+        const parts = str.split(':');
+        if (parts.length >= 2) return { hour:parseInt(parts[0]), min:parseInt(parts[1]) };
+        return null;
+    }
 
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredInstallPrompt = e;
-            if (!localStorage.getItem('installDismissed')) {
-                document.getElementById('installBanner').classList.add('show');
-            }
+    function parseTimeToMins(val) { const p = parseHourMin(val); return p ? p.hour*60+p.min : null; }
+
+    function getServiceDuration(serviceNames) {
+        if (!serviceNames) return 60;
+        return String(serviceNames).split(',').reduce((t,n) => { const s=services.find(sv=>sv.name.trim()===n.trim()); return t+(s?parseInt(s.duration):60); }, 0);
+    }
+
+    function loadSlots() {
+        const dateInput = document.getElementById('bookingDate').value;
+        const selected = Array.from(document.querySelectorAll('input[name="service"]:checked'));
+        if (!dateInput) { showWarning('Please select a date'); return; }
+        if (!selected.length) { showWarning('Please select at least one service first'); return; }
+        const date = new Date(dateInput+'T00:00:00');
+        const dayName = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][date.getDay()];
+        const hours = businessHours[dayName];
+        if (!hours) { showWarning('No hours configured for '+dayName); return; }
+        if (String(hours.closed).toLowerCase().trim()==='true') { showWarning('Studio is closed on '+dayName+'s'); return; }
+        const openTime = parseHourMin(hours.open), closeTime = parseHourMin(hours.close);
+        if (!openTime||!closeTime) { showWarning('Could not read hours for '+dayName); return; }
+        let required = 0;
+        selected.forEach(cb => { const p=cb.value.split('-'); required+=parseInt(p[p.length-1]); });
+        const openMins = openTime.hour*60+openTime.min, closeMins = closeTime.hour*60+closeTime.min;
+        const slots = [];
+        for (let m=openMins; m+required<=closeMins; m+=30) slots.push({hour:Math.floor(m/60),min:m%60});
+        const available = slots.filter(slot => !appointments.some(apt => {
+            if (String(apt.date).trim()!==dateInput) return false;
+            const aptStart=parseTimeToMins(apt.time); if(aptStart===null) return false;
+            const aptEnd=aptStart+getServiceDuration(apt.services), slotStart=slot.hour*60+slot.min, slotEnd=slotStart+required;
+            return !(slotEnd<=aptStart||slotStart>=aptEnd);
+        }));
+        renderSlots(available);
+        document.getElementById('timePicker').classList.add('active');
+        document.getElementById('warningMsg').classList.remove('show');
+    }
+
+    function renderSlots(slots) {
+        const container = document.getElementById('timeSlots');
+        container.innerHTML = '';
+        if (!slots.length) { container.innerHTML='<p style="grid-column:1/-1;text-align:center;color:var(--pink);padding:12px;font-size:14px;">No times available. Try another day!</p>'; return; }
+        slots.forEach(slot => {
+            const btn = document.createElement('button');
+            btn.className = 'time-slot';
+            const h=slot.hour%12||12, p=slot.hour>=12?'PM':'AM';
+            btn.textContent = `${h}:${String(slot.min).padStart(2,'0')} ${p}`;
+            btn.onclick = () => selectSlot(btn, slot);
+            container.appendChild(btn);
         });
+    }
 
-        window.addEventListener('appinstalled', () => {
-            document.getElementById('installBanner').classList.remove('show');
-            deferredInstallPrompt = null;
-        });
+    function selectSlot(btn, slot) {
+        document.querySelectorAll('.time-slot').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        document.getElementById('selectedTime').value = `${String(slot.hour).padStart(2,'0')}:${String(slot.min).padStart(2,'0')}`;
+    }
 
-        document.getElementById('installBtn').addEventListener('click', async () => {
-            if (!deferredInstallPrompt) return;
-            deferredInstallPrompt.prompt();
-            const { outcome } = await deferredInstallPrompt.userChoice;
-            deferredInstallPrompt = null;
-            document.getElementById('installBanner').classList.remove('show');
-        });
+    function showWarning(msg) {
+        document.getElementById('timePicker').classList.remove('active');
+        document.getElementById('warningMsg').textContent = msg;
+        document.getElementById('warningMsg').classList.add('show');
+    }
 
-        function dismissInstall() {
-            document.getElementById('installBanner').classList.remove('show');
-            localStorage.setItem('installDismissed', 'true');
+    async function submitBooking() {
+        const name=document.getElementById('clientName').value.trim();
+        const email=document.getElementById('clientEmail').value.trim();
+        const phone=document.getElementById('clientPhone').value.trim();
+        const time=document.getElementById('selectedTime').value;
+        const selected=Array.from(document.querySelectorAll('input[name="service"]:checked'));
+        const date=document.getElementById('bookingDate').value;
+        if (!name||!email||!phone||!time||!selected.length||!date) {
+            document.getElementById('errorMsg').textContent='Please complete all fields and select a time.';
+            document.getElementById('errorMsg').classList.add('show');
+            setTimeout(()=>document.getElementById('errorMsg').classList.remove('show'),4000); return;
         }
-
-        window.addEventListener('online', () => document.getElementById('offlineBadge').classList.remove('show'));
-        window.addEventListener('offline', () => document.getElementById('offlineBadge').classList.add('show'));
-        if (!navigator.onLine) document.getElementById('offlineBadge').classList.add('show');
-
-        // ===== API =====
-        async function api(action, data = {}) {
-            try {
-                const res = await fetch(API, {
-                    method: 'POST',
-                    body: JSON.stringify({ action, ...data })
-                });
-                return await res.json();
-            } catch(e) {
-                console.error('API error:', e);
-                return { success: false, error: e.message };
-            }
-        }
-
-        async function loadAll() {
-            const [svcRes, hoursRes, aptsRes] = await Promise.all([
-                api('getServices'),
-                api('getBusinessHours'),
-                api('getAppointments')
-            ]);
-            if (svcRes.success) { services = svcRes.services; renderServices(); }
-            if (hoursRes.success) { businessHours = hoursRes.businessHours; }
-            if (aptsRes.success) { appointments = aptsRes.appointments; }
-        }
-
-        function renderServices() {
-            const grid = document.getElementById('servicesGrid');
-            if (!services.length) {
-                grid.innerHTML = '<p style="color:#6b6b6b; grid-column:1/-1;">No services available.</p>';
-                return;
-            }
-            grid.innerHTML = services.map((s, i) => `
-                <label class="service-checkbox" id="svc-${i}">
-                    <input type="checkbox" name="service" value="${s.name}-${s.price}-${s.duration}" onchange="updateDuration()">
-                    <div>
-                        <div class="service-name">${s.name}</div>
-                        <div class="service-info">$${s.price} &bull; ${s.duration} min</div>
-                    </div>
-                </label>
-            `).join('');
-        }
-
-        function updateDuration() {
-            const selected = Array.from(document.querySelectorAll('input[name="service"]:checked'));
-            document.querySelectorAll('.service-checkbox').forEach(cb => {
-                cb.classList.toggle('selected', cb.querySelector('input').checked);
-            });
-            if (!selected.length) {
-                document.getElementById('durationSummary').classList.remove('show');
-                return;
-            }
-            let dur = 0, cost = 0;
-            selected.forEach(cb => {
-                const parts = cb.value.split('-');
-                dur += parseInt(parts[parts.length - 1]);
-                cost += parseInt(parts[parts.length - 2]);
-            });
-            document.getElementById('totalDuration').textContent = dur;
-            document.getElementById('totalCost').textContent = cost;
-            document.getElementById('durationSummary').classList.add('show');
-        }
-
-        function parseHourMin(val) {
-            if (val === null || val === undefined || val === '') return null;
-            if (typeof val === 'string' && val.includes('T')) {
-                const timePart = val.split('T')[1];
-                const parts = timePart.split(':');
-                const utcHour = parseInt(parts[0]);
-                const utcMin = parseInt(parts[1]);
-                const offsetMins = new Date().getTimezoneOffset();
-                const totalMins = utcHour * 60 + utcMin - offsetMins;
-                return { hour: Math.floor(totalMins / 60) % 24, min: totalMins % 60 };
-            }
-            if (typeof val === 'number') {
-                const totalMinutes = Math.round(val * 24 * 60);
-                return { hour: Math.floor(totalMinutes / 60), min: totalMinutes % 60 };
-            }
-            const str = String(val).trim();
-            const ampm = str.match(/^(\d+):(\d+)\s*(AM|PM)$/i);
-            if (ampm) {
-                let h = parseInt(ampm[1]);
-                const m = parseInt(ampm[2]);
-                const period = ampm[3].toUpperCase();
-                if (period === 'PM' && h !== 12) h += 12;
-                if (period === 'AM' && h === 12) h = 0;
-                return { hour: h, min: m };
-            }
-            const parts = str.split(':');
-            if (parts.length >= 2) return { hour: parseInt(parts[0]), min: parseInt(parts[1]) };
-            return null;
-        }
-
-        function parseTimeToMins(val) {
-            const parsed = parseHourMin(val);
-            return parsed ? parsed.hour * 60 + parsed.min : null;
-        }
-
-        function getServiceDuration(serviceNames) {
-            if (!serviceNames) return 60;
-            const names = String(serviceNames).split(',');
-            return names.reduce((total, name) => {
-                const svc = services.find(s => s.name.trim() === name.trim());
-                return total + (svc ? parseInt(svc.duration) : 60);
-            }, 0);
-        }
-
-        function loadSlots() {
-            const dateInput = document.getElementById('bookingDate').value;
-            const selected = Array.from(document.querySelectorAll('input[name="service"]:checked'));
-
-            if (!dateInput) { showWarning('Please select a date'); return; }
-            if (!selected.length) { showWarning('Please select at least one service first'); return; }
-
-            const date = new Date(dateInput + 'T00:00:00');
-            const dayName = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][date.getDay()];
-            const hours = businessHours[dayName];
-
-            if (!hours) { showWarning('No hours configured for ' + dayName); return; }
-
-            const closedVal = String(hours.closed).toLowerCase().trim();
-            if (closedVal === 'true') { showWarning('Studio is closed on ' + dayName + 's'); return; }
-
-            const openTime = parseHourMin(hours.open);
-            const closeTime = parseHourMin(hours.close);
-
-            if (!openTime || !closeTime) { showWarning('Could not read hours for ' + dayName); return; }
-
-            let requiredDuration = 0;
-            selected.forEach(cb => {
-                const parts = cb.value.split('-');
-                requiredDuration += parseInt(parts[parts.length - 1]);
-            });
-
-            const openMins = openTime.hour * 60 + openTime.min;
-            const closeMins = closeTime.hour * 60 + closeTime.min;
-            const slots = [];
-
-            for (let m = openMins; m + requiredDuration <= closeMins; m += 30) {
-                slots.push({ hour: Math.floor(m / 60), min: m % 60 });
-            }
-
-            const available = slots.filter(slot => {
-                return !appointments.some(apt => {
-                    if (String(apt.date).trim() !== dateInput) return false;
-                    const aptDur = getServiceDuration(apt.services);
-                    const aptStart = parseTimeToMins(apt.time);
-                    if (aptStart === null) return false;
-                    const aptEnd = aptStart + aptDur;
-                    const slotStart = slot.hour * 60 + slot.min;
-                    const slotEnd = slotStart + requiredDuration;
-                    return !(slotEnd <= aptStart || slotStart >= aptEnd);
-                });
-            });
-
-            renderSlots(available);
-            document.getElementById('timePicker').classList.add('active');
-            document.getElementById('warningMsg').classList.remove('show');
-        }
-
-        function renderSlots(slots) {
-            const container = document.getElementById('timeSlots');
-            container.innerHTML = '';
-            if (!slots.length) {
-                container.innerHTML = '<p style="grid-column:1/-1; text-align:center; color:#d4a5a5; padding:12px;">No times available for this date. Try another day!</p>';
-                return;
-            }
-            slots.forEach(slot => {
-                const btn = document.createElement('button');
-                btn.className = 'time-slot';
-                const h = slot.hour % 12 || 12;
-                const p = slot.hour >= 12 ? 'PM' : 'AM';
-                btn.textContent = `${h}:${String(slot.min).padStart(2,'0')} ${p}`;
-                btn.onclick = () => selectSlot(btn, slot);
-                container.appendChild(btn);
-            });
-        }
-
-        function selectSlot(btn, slot) {
-            document.querySelectorAll('.time-slot').forEach(b => b.classList.remove('selected'));
-            btn.classList.add('selected');
-            document.getElementById('selectedTime').value = `${String(slot.hour).padStart(2,'0')}:${String(slot.min).padStart(2,'0')}`;
-        }
-
-        function showWarning(msg) {
+        const serviceNames=selected.map(cb=>{const p=cb.value.split('-');return p.slice(0,p.length-2).join('-');});
+        const total=selected.reduce((s,cb)=>{const p=cb.value.split('-');return s+parseInt(p[p.length-2]);},0);
+        const h=parseInt(time.split(':')[0]),m=parseInt(time.split(':')[1]);
+        const displayTime=`${h%12||12}:${String(m).padStart(2,'0')} ${h>=12?'PM':'AM'}`;
+        const btn=document.getElementById('submitBtn');
+        btn.disabled=true; btn.innerHTML='<span class="spinner"></span>Submitting...';
+        const result=await api('addAppointment',{appointment:{clientName:name,email,phone,services:serviceNames,date,time:displayTime,notes:document.getElementById('clientNotes').value,total}});
+        btn.disabled=false; btn.textContent='Complete Booking';
+        if (result.success) {
+            document.getElementById('successMsg').classList.add('show');
+            ['input[name="service"]'].forEach(sel=>document.querySelectorAll(sel).forEach(cb=>cb.checked=false));
+            document.querySelectorAll('.service-checkbox').forEach(cb=>cb.classList.remove('selected'));
+            document.getElementById('durationSummary').classList.remove('show');
             document.getElementById('timePicker').classList.remove('active');
-            document.getElementById('warningMsg').textContent = msg;
-            document.getElementById('warningMsg').classList.add('show');
+            ['bookingDate','clientName','clientEmail','clientPhone','clientNotes','selectedTime'].forEach(id=>document.getElementById(id).value='');
+            const aptsRes=await api('getAppointments');
+            if (aptsRes.success) appointments=aptsRes.appointments;
+            setTimeout(()=>document.getElementById('successMsg').classList.remove('show'),6000);
+            window.scrollTo({top:0,behavior:'smooth'});
+        } else {
+            document.getElementById('errorMsg').textContent='Failed to submit. Please try again.';
+            document.getElementById('errorMsg').classList.add('show');
+            setTimeout(()=>document.getElementById('errorMsg').classList.remove('show'),4000);
         }
+    }
 
-        async function submitBooking() {
-            const name = document.getElementById('clientName').value.trim();
-            const email = document.getElementById('clientEmail').value.trim();
-            const phone = document.getElementById('clientPhone').value.trim();
-            const time = document.getElementById('selectedTime').value;
-            const selected = Array.from(document.querySelectorAll('input[name="service"]:checked'));
-            const date = document.getElementById('bookingDate').value;
-
-            if (!name || !email || !phone || !time || !selected.length || !date) {
-                document.getElementById('errorMsg').textContent = 'Please complete all fields and select a time.';
-                document.getElementById('errorMsg').classList.add('show');
-                setTimeout(() => document.getElementById('errorMsg').classList.remove('show'), 4000);
-                return;
-            }
-
-            const serviceNames = selected.map(cb => {
-                const parts = cb.value.split('-');
-                return parts.slice(0, parts.length - 2).join('-');
-            });
-            const total = selected.reduce((sum, cb) => {
-                const parts = cb.value.split('-');
-                return sum + parseInt(parts[parts.length - 2]);
-            }, 0);
-
-            const h = parseInt(time.split(':')[0]);
-            const m = parseInt(time.split(':')[1]);
-            const period = h >= 12 ? 'PM' : 'AM';
-            const displayH = h % 12 || 12;
-            const displayTime = `${displayH}:${String(m).padStart(2,'0')} ${period}`;
-
-            const btn = document.getElementById('submitBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner"></span>Submitting...';
-
-            const result = await api('addAppointment', {
-                appointment: {
-                    clientName: name,
-                    email: email,
-                    phone: phone,
-                    services: serviceNames,
-                    date: date,
-                    time: displayTime,
-                    notes: document.getElementById('clientNotes').value,
-                    total: total
-                }
-            });
-
-            btn.disabled = false;
-            btn.textContent = 'Complete Booking';
-
-            if (result.success) {
-                document.getElementById('successMsg').classList.add('show');
-                document.querySelectorAll('input[name="service"]').forEach(cb => cb.checked = false);
-                document.querySelectorAll('.service-checkbox').forEach(cb => cb.classList.remove('selected'));
-                document.getElementById('durationSummary').classList.remove('show');
-                document.getElementById('timePicker').classList.remove('active');
-                document.getElementById('bookingDate').value = '';
-                document.getElementById('clientName').value = '';
-                document.getElementById('clientEmail').value = '';
-                document.getElementById('clientPhone').value = '';
-                document.getElementById('clientNotes').value = '';
-                document.getElementById('selectedTime').value = '';
-                const aptsRes = await api('getAppointments');
-                if (aptsRes.success) appointments = aptsRes.appointments;
-                setTimeout(() => document.getElementById('successMsg').classList.remove('show'), 6000);
-            } else {
-                document.getElementById('errorMsg').textContent = 'Failed to submit. Please try again.';
-                document.getElementById('errorMsg').classList.add('show');
-                setTimeout(() => document.getElementById('errorMsg').classList.remove('show'), 4000);
-            }
-        }
-
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        document.getElementById('bookingDate').min = tomorrow.toISOString().split('T')[0];
-
-        loadAll();
-    </script>
+    const tomorrow=new Date(); tomorrow.setDate(tomorrow.getDate()+1);
+    document.getElementById('bookingDate').min=tomorrow.toISOString().split('T')[0];
+    loadAll();
+</script>
 </body>
 </html>
