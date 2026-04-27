@@ -1,9 +1,9 @@
-const CACHE = 'muva-studio-v3';
+const CACHE = 'muva-studio-v4';
 const ASSETS = [
     '/muva-studio/',
     '/muva-studio/index.html',
-    '/muva-studio/icon-192.png',
-    '/muva-studio/icon-512.png'
+    '/muva-studio/icon192.png',
+    '/muva-studio/icon512.png'
 ];
 
 self.addEventListener('install', e => {
