@@ -1,12 +1,12 @@
 {
-    "name": "Muva Studio",
-    "short_name": "Muva Studio",
-    "description": "Book your professional makeup appointment",
+    "name": "Mika's Beauty World",
+    "short_name": "Mika's Beauty",
+    "description": "Book your professional makeup appointment with Mika's Beauty World",
     "start_url": "/muva-studio/",
     "scope": "/muva-studio/",
     "display": "standalone",
-    "background_color": "#faf8f6",
-    "theme_color": "#d4a5a5",
+    "background_color": "#fdf6f6",
+    "theme_color": "#AF1B3F",
     "orientation": "portrait-primary",
     "icons": [
         {
