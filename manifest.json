@@ -8,30 +8,19 @@
     "background_color": "#1a0515",
     "theme_color": "#AF1B3F",
     "orientation": "portrait-primary",
+    "prefer_related_applications": false,
     "icons": [
         {
             "src": "/muva-studio/icon192.png",
             "sizes": "192x192",
             "type": "image/png",
-            "purpose": "any"
-        },
-        {
-            "src": "/muva-studio/icon192.png",
-            "sizes": "192x192",
-            "type": "image/png",
-            "purpose": "maskable"
+            "purpose": "any maskable"
         },
         {
             "src": "/muva-studio/icon512.png",
             "sizes": "512x512",
             "type": "image/png",
-            "purpose": "any"
-        },
-        {
-            "src": "/muva-studio/icon512.png",
-            "sizes": "512x512",
-            "type": "image/png",
-            "purpose": "maskable"
+            "purpose": "any maskable"
         }
     ],
     "shortcuts": [
