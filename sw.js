@@ -1,4 +1,4 @@
-const CACHE = 'muva-studio-v4';
+const CACHE = 'muva-studio-v5';
 const ASSETS = [
     '/muva-studio/',
     '/muva-studio/index.html',
