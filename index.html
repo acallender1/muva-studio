@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Mika's Beauty World">
-    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="apple-touch-icon" href="/icon192.png">
     <link rel="manifest" href="manifest.json">
     <title>Mika's Beauty World</title>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,600;0,700;1,400&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -491,7 +491,7 @@ let services=[],businessHours={},appointments=[],holds=[];
 let activeHold=null,timerInterval=null,deferredInstallPrompt=null;
 
 /* ── PWA ── */
-if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(err=>console.warn('SW registration failed:',err)));
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e;if(!localStorage.getItem('installDismissed'))document.getElementById('installBanner').classList.add('show');});
 window.addEventListener('appinstalled',()=>{document.getElementById('installBanner').classList.remove('show');deferredInstallPrompt=null;});
 document.getElementById('installBtn').addEventListener('click',async()=>{if(!deferredInstallPrompt)return;deferredInstallPrompt.prompt();await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;document.getElementById('installBanner').classList.remove('show');});
